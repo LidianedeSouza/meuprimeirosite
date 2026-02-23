@@ -1,19 +1,484 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Primeiro Site S2 </title>
+    <title>IAutoConceito · Chat para autodescoberta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f3f5fc 0%, #e6ecf8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .chat-app {
+            max-width: 950px;
+            width: 100%;
+            height: 85vh;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 50px -10px rgba(0, 20, 40, 0.25), inset 0 1px 2px rgba(255,255,255,0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+
+        /* cabeçalho com propósito */
+        .chat-header {
+            padding: 1.8rem 2rem 1.2rem 2rem;
+            border-bottom: 1px solid rgba(140, 130, 200, 0.2);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(130deg, #1f2b4e, #3c4f7c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .spark {
+            background: #d8d0ff;
+            border-radius: 40px;
+            padding: 0.2rem 1rem 0.2rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #2b2b4f;
+            border: 1px solid #b7acf0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .spark::before {
+            content: "✨";
+            font-size: 1rem;
+        }
+
+        .header-sub {
+            color: #3a405b;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .header-sub span {
+            background: #e9e4ff;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            color: #2a2f4b;
+            border: 1px solid #cdc3f0;
+        }
+
+        /* área de mensagens */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.8rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.3rem;
+            scroll-behavior: smooth;
+            background: rgba(245, 240, 255, 0.2);
+        }
+
+        .message {
+            display: flex;
+            max-width: 85%;
+            animation: aparecer 0.35s ease;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .bubble {
+            padding: 1.2rem 1.5rem;
+            border-radius: 1.8rem;
+            box-shadow: 0 6px 14px rgba(0, 8, 20, 0.06);
+            font-size: 1rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .bot .bubble {
+            background: #ffffffdd;
+            border: 1px solid #ffffff;
+            border-bottom-left-radius: 0.5rem;
+            color: #1b1f2e;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 6px 12px rgba(100, 90, 150, 0.08);
+        }
+
+        .user .bubble {
+            background: #2a304cdd;
+            border: 1px solid #404770;
+            border-bottom-right-radius: 0.5rem;
+            color: #f2f0ff;
+            backdrop-filter: blur(2px);
+        }
+
+        /* area de input */
+        .chat-input-area {
+            padding: 1.5rem 2rem 1.8rem 2rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-top: 1px solid rgba(160, 150, 210, 0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            background: white;
+            border-radius: 4rem;
+            padding: 0.3rem 0.3rem 0.3rem 1.5rem;
+            border: 1px solid #ded9ff;
+            box-shadow: 0 8px 18px -10px #b0a0d0;
+        }
+
+        .input-row input {
+            flex: 1;
+            border: none;
+            padding: 0.9rem 0;
+            font-size: 1rem;
+            background: transparent;
+            outline: none;
+            color: #1e1f2c;
+        }
+
+        .input-row input::placeholder {
+            color: #8b87a3;
+            font-weight: 300;
+        }
+
+        .input-row button {
+            background: #38405f;
+            border: none;
+            color: white;
+            width: 3.2rem;
+            height: 3.2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1.3rem;
+            border: 1px solid #6e67a0;
+            box-shadow: 0 4px 10px rgba(40, 30, 100, 0.2);
+        }
+
+        .input-row button:hover {
+            background: #4c5580;
+            transform: scale(1.03);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+
+        .suggestions button {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #afa5dd;
+            color: #262b44;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 450;
+            backdrop-filter: blur(4px);
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .suggestions button:hover {
+            background: white;
+            border-color: #6f639c;
+            box-shadow: 0 6px 12px rgba(80, 60, 150, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #534d77;
+            margin-top: 0.3rem;
+        }
+
+        @keyframes aparecer {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* animação sutil de foco */
+        .typing-indicator {
+            display: flex;
+            gap: 0.3rem;
+            padding: 0.8rem 1.2rem;
+            background: #ffffffcc;
+            border-radius: 30px;
+            width: fit-content;
+            border: 1px solid #d8ceff;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #53527a;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: piscar 1.2s infinite;
+        }
+
+        @keyframes piscar {
+            0%,100%{ opacity: 0.3; transform: scale(1);}
+            50%{ opacity: 1; transform: scale(1.2); background:#6f68b0;}
+        }
+
+        /* scroll personalizado */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: #e0daf2;
+            border-radius: 10px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #a89fd6;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-    
+    <div class="chat-app">
+        <div class="chat-header">
+            <div class="header-title">
+                <h1>🧠 espelho · IA</h1>
+                <div class="spark">autoconceito em construção</div>
+            </div>
+            <div class="header-sub">
+                <span>🔍 perguntas reflexivas</span>
+                <span>🎯 baseado em psicologia humanista</span>
+            </div>
+        </div>
 
+        <div class="chat-messages" id="messageArea">
+            <!-- mensagem inicial do bot -->
+            <div class="message bot">
+                <div class="bubble">
+                    👋 Olá! Vou te ajudar a explorar seu <strong>autoconceito</strong> — a imagem que você tem de si.  
+                    Farei perguntas simples. Responda com sinceridade.  
+                    <br><br>
+                    Para começar: <strong>Que três palavras vêm à sua mente quando você pensa em “quem sou eu”?</strong>
+                </div>
+            </div>
+            <!-- as mensagens do usuário aparecerão dinamicamente -->
+        </div>
 
-Hello Word!!!!
+        <div class="chat-input-area">
+            <div class="input-row">
+                <input type="text" id="userInput" placeholder="Digite sua resposta..." autocomplete="off" aria-label="Sua resposta">
+                <button id="sendBtn" aria-label="Enviar">➤</button>
+            </div>
 
+            <!-- perguntas rápidas de autoconceito -->
+            <div class="suggestions" id="suggestionsContainer">
+                <button class="sugg-btn" data-text="O que mais te orgulha?">🌱 Orgulho</button>
+                <button class="sugg-btn" data-text="Como você reage a críticas?">🔍 Críticas</button>
+                <button class="sugg-btn" data-text="Descreva um momento de flow">🎨 Flow</button>
+                <button class="sugg-btn" data-text="O que seus amigos elogiam em você?">🤝 Amigos</button>
+                <button class="sugg-btn" data-text="Sua maior fragilidade?">💧 Fragilidade</button>
+                <button class="sugg-btn" data-text="O que você deseja mudar em si?">🌙 Mudança</button>
+            </div>
+            <div class="footer-note">perguntas para lapidar seu auto-retrato</div>
+        </div>
+    </div>
 
+    <script>
+        (function() {
+            const messageArea = document.getElementById('messageArea');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const suggButtons = document.querySelectorAll('.sugg-btn');
 
+            // Mapa de respostas inteligentes (contexto autoconceito)
+            const respostasBot = {
+                'padrao': [
+                    "Interessante… e isso te define nos dias mais difíceis?",
+                    "Como você se sente quando age assim?",
+                    "Isso ressoa com quem você *realmente* quer ser?",
+                    "Que memória da infância se conecta com isso?",
+                    "Se você perguntasse a alguém próximo, ele concordaria?",
+                    "Essa caracterência te ajuda ou te limita?",
+                    "Quando essa qualidade surgiu com mais força?",
+                    "E qual seria o oposto disso em você?",
+                    "O que isso revela sobre seus valores mais profundos?"
+                ],
+                'orgulho': [
+                    "Que ótimo! O que exatamente te faz sentir orgulho em relação a isso?",
+                    "Esse orgulho vem mais de você ou do reconhecimento externo?"
+                ],
+                'criticas': [
+                    "Entendo. Você costuma refletir sobre as críticas ou tende a rebater?",
+                    "E o que as críticas dizem sobre seus pontos cegos?"
+                ],
+                'flow': [
+                    "Flow é revelador! O que essa atividade diz sobre seus talentos?",
+                    "E você consegue trazer esse estado para outras áreas da vida?"
+                ],
+                'amigos': [
+                    "Bonito isso. Você reconhece essas qualidades em si mesmo também?",
+                    "O que essas percepções dos outros te ensinam sobre você?"
+                ],
+                'fragilidade': [
+                    "Reconhecer fragilidades é força. Como essa fragilidade te protege?",
+                    "Como você gostaria de acolher melhor essa parte?"
+                ],
+                'mudanca': [
+                    "Mudar é um processo. Que pequeno passo já estaria alinhado com essa mudança?",
+                    "O que te impede de começar hoje mesmo?"
+                ]
+            };
 
+            function adicionarMensagem(remetente, texto) {
+                const divMsg = document.createElement('div');
+                divMsg.classList.add('message', remetente);
 
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                bubble.innerText = texto;
+
+                divMsg.appendChild(bubble);
+                messageArea.appendChild(divMsg);
+
+                // rolar para a última mensagem
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+
+            // Simula "digitando" (efeito visual e atraso)
+            function enviarRespostaDoBot(perguntaUsuario) {
+                // indicador de digitação
+                const typingDiv = document.createElement('div');
+                typingDiv.classList.add('message', 'bot');
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+                messageArea.appendChild(typingDiv);
+                messageArea.scrollTop = messageArea.scrollHeight;
+
+                // escolher resposta baseada em palavras-chave
+                const textoLower = perguntaUsuario.toLowerCase();
+                let listaRespostas = respostasBot['padrao'];
+
+                if (textoLower.includes('orgulho') || textoLower.includes('orgulha')) {
+                    listaRespostas = respostasBot['orgulho'];
+                } else if (textoLower.includes('críticas') || textoLower.includes('critica')) {
+                    listaRespostas = respostasBot['criticas'];
+                } else if (textoLower.includes('flow') || textoLower.includes('fluxo') || textoLower.includes('momento')) {
+                    listaRespostas = respostasBot['flow'];
+                } else if (textoLower.includes('amigos') || textoLower.includes('elogiam') || textoLower.includes('amizade')) {
+                    listaRespostas = respostasBot['amigos'];
+                } else if (textoLower.includes('fragilidade') || textoLower.includes('fraco') || textoLower.includes('medo')) {
+                    listaRespostas = respostasBot['fragilidade'];
+                } else if (textoLower.includes('mudar') || textoLower.includes('mudança') || textoLower.includes('transformar')) {
+                    listaRespostas = respostasBot['mudanca'];
+                } else if (textoLower.includes('obrigado') || textoLower.includes('valeu') || textoLower.includes('ajudou')) {
+                    listaRespostas = ["Fico feliz em ajudar. A jornada de autoconhecimento é contínua. Que tal refletirmos mais um pouco?", "Por nada! Você quer explorar outra dimensão do seu autoconceito?"];
+                } else if (textoLower.split(' ').length <= 4 && textoLower.length > 5) {
+                    // respostas curtas — incentivar profundidade
+                    listaRespostas = ["Pode me contar um pouco mais sobre isso?", "E o que isso representa pra você?", "Como isso se conecta com sua história?"];
+                }
+
+                const respostaEscolhida = listaRespostas[Math.floor(Math.random() * listaRespostas.length)];
+
+                setTimeout(() => {
+                    // remover indicador de digitação
+                    const typing = document.getElementById('typingIndicator');
+                    if (typing) typing.remove();
+
+                    adicionarMensagem('bot', respostaEscolhida);
+                }, 800); // simula reflexão da IA
+            }
+
+            function lidarComEnvio() {
+                const texto = userInput.value.trim();
+                if (texto === '') return;
+
+                // adiciona mensagem do usuário
+                adicionarMensagem('user', texto);
+                userInput.value = ''; // limpa input
+
+                // resposta do bot depois de um instante
+                enviarRespostaDoBot(texto);
+            }
+
+            // evento de envio pelo botão
+            sendBtn.addEventListener('click', lidarComEnvio);
+
+            // enviar com Enter
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    lidarComEnvio();
+                }
+            });
+
+            // sugestões de perguntas (ao clicar, insere ou já envia)
+            suggButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const textoSugerido = btn.getAttribute('data-text');
+                    if (textoSugerido) {
+                        // podemos colocar no input e já enviar? melhor enviar direto.
+                        adicionarMensagem('user', textoSugerido);
+                        enviarRespostaDoBot(textoSugerido);
+                    }
+                });
+            });
+
+            // boas-vindas sutil: foco no input
+            userInput.focus();
+
+            // opção para, se o usuário demorar, oferecer uma mensagem extra? não necessário, mas pode ser um extra.
+            // vamos apenas garantir scroll inicial.
+        })();
+    </script>
+    <!-- pequena melhoria: se clicar no balão de boas vindas, nada acontece, só UX -->
 </body>
 </html>
